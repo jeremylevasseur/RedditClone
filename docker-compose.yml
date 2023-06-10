@@ -1,0 +1,73 @@
+version: "3.5"
+
+services:
+    # Container that hosts the PostgreSQL database
+    postgres:
+        container_name: postgres
+        image: postgres:15.3
+        restart: always
+        environment:
+            - POSTGRES_DB=lireddit
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        logging:
+            options:
+                max-size: 10m
+                max-file: "3"
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./postgresql/saved_data:/var/lib/postgresql/data
+            # - ./postgresql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+            # - ./postgresql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
+
+    # Container that runs React
+    # main_site:
+    #     container_name: main_site
+    #     build: ./main_site/.
+    #     depends_on:
+    #         - api
+    #     restart: always
+    #     tty: true
+    #     ports:
+    #         - "3000:3000"
+    #     networks:
+    #         - app-network
+
+    # Container that runs the REST API (Node.js)
+    # server:
+    #     container_name: server
+    #     restart: always
+    #     build: ./server/.
+    #     volumes:
+    #         - ./server:/usr/src/app
+    #     depends_on:
+    #         - postgres
+    #     ports:
+    #         - "5000:5000"
+    #     expose:
+    #         - "5000"
+    #     networks:
+    #         - app-network
+
+    # Handles traffic and redirects requests to the proper container with SSL encryption (if setup)
+    # reverse_proxy:
+    #     image: nginx:1.17.10
+    #     container_name: reverse_proxy
+    #     depends_on:
+    #         - postgres
+    #         - server
+    #     ports:
+    #         - '80:80'
+    #         - '443:443'
+    #     expose:
+    #         - '80'
+    #         - '443'
+    #     networks:
+    #         - app-network
